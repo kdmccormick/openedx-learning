@@ -12,6 +12,18 @@ amqp==5.3.1
     # via
     #   -r requirements/test.txt
     #   kombu
+annotated-doc==0.0.4
+    # via
+    #   -r requirements/test.txt
+    #   fastapi
+annotated-types==0.7.0
+    # via
+    #   -r requirements/test.txt
+    #   pydantic
+anyio==4.12.1
+    # via
+    #   -r requirements/test.txt
+    #   starlette
 asgiref==3.11.1
     # via
     #   -r requirements/test.txt
@@ -53,6 +65,7 @@ click==8.3.1
     #   code-annotations
     #   edx-django-utils
     #   import-linter
+    #   uvicorn
 click-didyoumean==0.3.1
     # via
     #   -r requirements/test.txt
@@ -144,19 +157,28 @@ edx-opaque-keys==3.0.0
     # via
     #   -r requirements/test.txt
     #   edx-drf-extensions
+fastapi==0.128.5
+    # via
+    #   -r requirements/test.txt
+    #   import-linter
 freezegun==1.5.5
     # via -r requirements/test.txt
 grimp==3.14
     # via
     #   -r requirements/test.txt
     #   import-linter
+h11==0.16.0
+    # via
+    #   -r requirements/test.txt
+    #   uvicorn
 idna==3.11
     # via
     #   -r requirements/test.txt
+    #   anyio
     #   requests
 imagesize==1.4.1
     # via sphinx
-import-linter==2.9
+import-linter==2.10
     # via -r requirements/test.txt
 iniconfig==2.3.0
     # via
@@ -229,6 +251,14 @@ pycparser==3.0
     # via
     #   -r requirements/test.txt
     #   cffi
+pydantic==2.12.5
+    # via
+    #   -r requirements/test.txt
+    #   fastapi
+pydantic-core==2.41.5
+    # via
+    #   -r requirements/test.txt
+    #   pydantic
 pydata-sphinx-theme==0.15.4
     # via sphinx-book-theme
 pygments==2.19.2
@@ -332,6 +362,10 @@ sqlparse==0.5.5
     #   -r requirements/test.txt
     #   django
     #   django-debug-toolbar
+starlette==0.52.1
+    # via
+    #   -r requirements/test.txt
+    #   fastapi
 stevedore==5.6.0
     # via
     #   -r requirements/test.txt
@@ -353,15 +387,26 @@ types-pyyaml==6.0.12.20250915
 typing-extensions==4.15.0
     # via
     #   -r requirements/test.txt
+    #   anyio
     #   beautifulsoup4
     #   django-stubs
     #   django-stubs-ext
     #   djangorestframework-stubs
     #   edx-opaque-keys
+    #   fastapi
     #   grimp
     #   import-linter
     #   mypy
+    #   pydantic
+    #   pydantic-core
     #   pydata-sphinx-theme
+    #   starlette
+    #   typing-inspection
+typing-inspection==0.4.2
+    # via
+    #   -r requirements/test.txt
+    #   fastapi
+    #   pydantic
 tzdata==2025.3
     # via
     #   -r requirements/test.txt
@@ -374,13 +419,17 @@ urllib3==2.6.3
     # via
     #   -r requirements/test.txt
     #   requests
+uvicorn==0.40.0
+    # via
+    #   -r requirements/test.txt
+    #   import-linter
 vine==5.1.0
     # via
     #   -r requirements/test.txt
     #   amqp
     #   celery
     #   kombu
-wcwidth==0.5.3
+wcwidth==0.6.0
     # via
     #   -r requirements/test.txt
     #   prompt-toolkit
