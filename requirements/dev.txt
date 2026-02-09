@@ -8,11 +8,26 @@ amqp==5.3.1
     # via
     #   -r requirements/quality.txt
     #   kombu
+annotated-doc==0.0.4
+    # via
+    #   -r requirements/ci.txt
+    #   -r requirements/quality.txt
+    #   fastapi
+annotated-types==0.7.0
+    # via
+    #   -r requirements/ci.txt
+    #   -r requirements/quality.txt
+    #   pydantic
+anyio==4.12.1
+    # via
+    #   -r requirements/ci.txt
+    #   -r requirements/quality.txt
+    #   starlette
 asgiref==3.11.1
     # via
     #   -r requirements/quality.txt
     #   django
-astroid==4.0.3
+astroid==4.0.4
     # via
     #   -r requirements/quality.txt
     #   pylint
@@ -70,6 +85,7 @@ click==8.3.1
     #   edx-lint
     #   import-linter
     #   pip-tools
+    #   uvicorn
 click-didyoumean==0.3.1
     # via
     #   -r requirements/quality.txt
@@ -183,6 +199,11 @@ edx-opaque-keys==3.0.0
     # via
     #   -r requirements/quality.txt
     #   edx-drf-extensions
+fastapi==0.128.5
+    # via
+    #   -r requirements/ci.txt
+    #   -r requirements/quality.txt
+    #   import-linter
 filelock==3.20.3
     # via
     #   -r requirements/ci.txt
@@ -195,15 +216,22 @@ grimp==3.14
     #   -r requirements/ci.txt
     #   -r requirements/quality.txt
     #   import-linter
-id==1.5.0
+h11==0.16.0
+    # via
+    #   -r requirements/ci.txt
+    #   -r requirements/quality.txt
+    #   uvicorn
+id==1.6.1
     # via
     #   -r requirements/quality.txt
     #   twine
 idna==3.11
     # via
+    #   -r requirements/ci.txt
     #   -r requirements/quality.txt
+    #   anyio
     #   requests
-import-linter==2.9
+import-linter==2.10
     # via
     #   -r requirements/ci.txt
     #   -r requirements/quality.txt
@@ -347,6 +375,16 @@ pycparser==3.0
     # via
     #   -r requirements/quality.txt
     #   cffi
+pydantic==2.12.5
+    # via
+    #   -r requirements/ci.txt
+    #   -r requirements/quality.txt
+    #   fastapi
+pydantic-core==2.41.5
+    # via
+    #   -r requirements/ci.txt
+    #   -r requirements/quality.txt
+    #   pydantic
 pydocstyle==6.3.0
     # via -r requirements/quality.txt
 pygments==2.19.2
@@ -430,7 +468,6 @@ requests==2.32.5
     # via
     #   -r requirements/quality.txt
     #   edx-drf-extensions
-    #   id
     #   requests-toolbelt
     #   twine
 requests-toolbelt==1.0.0
@@ -471,6 +508,11 @@ sqlparse==0.5.5
     #   -r requirements/quality.txt
     #   django
     #   django-debug-toolbar
+starlette==0.52.1
+    # via
+    #   -r requirements/ci.txt
+    #   -r requirements/quality.txt
+    #   fastapi
 stevedore==5.6.0
     # via
     #   -r requirements/quality.txt
@@ -498,13 +540,25 @@ typing-extensions==4.15.0
     # via
     #   -r requirements/ci.txt
     #   -r requirements/quality.txt
+    #   anyio
     #   django-stubs
     #   django-stubs-ext
     #   djangorestframework-stubs
     #   edx-opaque-keys
+    #   fastapi
     #   grimp
     #   import-linter
     #   mypy
+    #   pydantic
+    #   pydantic-core
+    #   starlette
+    #   typing-inspection
+typing-inspection==0.4.2
+    # via
+    #   -r requirements/ci.txt
+    #   -r requirements/quality.txt
+    #   fastapi
+    #   pydantic
 tzdata==2025.3
     # via
     #   -r requirements/quality.txt
@@ -516,8 +570,14 @@ tzlocal==5.3.1
 urllib3==2.6.3
     # via
     #   -r requirements/quality.txt
+    #   id
     #   requests
     #   twine
+uvicorn==0.40.0
+    # via
+    #   -r requirements/ci.txt
+    #   -r requirements/quality.txt
+    #   import-linter
 vine==5.1.0
     # via
     #   -r requirements/quality.txt
@@ -528,7 +588,7 @@ virtualenv==20.36.1
     # via
     #   -r requirements/ci.txt
     #   tox
-wcwidth==0.5.3
+wcwidth==0.6.0
     # via
     #   -r requirements/quality.txt
     #   prompt-toolkit
