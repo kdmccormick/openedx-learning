@@ -10,7 +10,7 @@ from setuptools import find_packages, setup
 # We choose a version *between* the final openedx-learning version and the first openedx-core
 # version. That way, openedx-learning gets a final release (this one), and there's an obvious
 # continuity into openedx-core versioning.
-VERSION = "0.33.0"
+VERSION = "0.33.1"
 
 if sys.argv[-1] == 'tag':
     print("Tagging the version on github:")
@@ -23,14 +23,14 @@ setup(
     version=VERSION,
     description="""Open edX Learning Core (and Tagging)""",
     long_description="""
-**This package has been renamed to [openedx-core](https://pypi.org/project/openedx-core/)!**
+**This package has been renamed to `openedx-core <https://pypi.org/project/openedx-core>`_!**
 """,
     author='David Ormsbee',
     author_email='dave@axim.org',
     url='https://github.com/openedx/openedx-learning',
     packages=[],
     include_package_data=True,
-    install_requires=["openedx-core==0.34.0"],
+    install_requires=["openedx-core==0.34.1"],
     python_requires=">=3.11",
     license="AGPL 3.0",
     zip_safe=False,
