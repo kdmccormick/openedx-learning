@@ -24,7 +24,7 @@ setup(
     description="""Open edX Learning Core (and Tagging)""",
     long_description="""
 **This package has been renamed to [openedx-core](https://pypi.org/project/openedx-core/)!**
-"""
+""",
     author='David Ormsbee',
     author_email='dave@axim.org',
     url='https://github.com/openedx/openedx-learning',
