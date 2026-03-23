@@ -8,7 +8,7 @@ amqp==5.3.1
     # via kombu
 asgiref==3.11.1
     # via django
-attrs==25.4.0
+attrs==26.1.0
     # via -r requirements/base.in
 billiard==4.2.4
     # via celery
@@ -60,7 +60,7 @@ django-waffle==5.0.0
     # via
     #   edx-django-utils
     #   edx-drf-extensions
-djangorestframework==3.16.1
+djangorestframework==3.17.0
     # via
     #   -r requirements/base.in
     #   drf-jwt

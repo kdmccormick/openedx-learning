@@ -16,7 +16,7 @@ astroid==4.0.4
     # via
     #   pylint
     #   pylint-celery
-attrs==25.4.0
+attrs==26.1.0
     # via -r requirements/test.txt
 billiard==4.2.4
     # via
@@ -110,11 +110,11 @@ django-simple-history==3.11.0
     # via
     #   -r requirements/test.txt
     #   edx-organizations
-django-stubs==6.0.0
+django-stubs==6.0.1
     # via
     #   -r requirements/test.txt
     #   djangorestframework-stubs
-django-stubs-ext==6.0.0
+django-stubs-ext==6.0.1
     # via
     #   -r requirements/test.txt
     #   django-stubs
@@ -123,7 +123,7 @@ django-waffle==5.0.0
     #   -r requirements/test.txt
     #   edx-django-utils
     #   edx-drf-extensions
-djangorestframework==3.16.1
+djangorestframework==3.17.0
     # via
     #   -r requirements/test.txt
     #   drf-jwt
@@ -182,7 +182,7 @@ isort==8.0.1
     #   pylint
 jaraco-classes==3.4.0
     # via keyring
-jaraco-context==6.1.1
+jaraco-context==6.1.2
     # via keyring
 jaraco-functools==4.4.0
     # via keyring
@@ -309,7 +309,7 @@ pytest==9.0.2
     #   -r requirements/test.txt
     #   pytest-cov
     #   pytest-django
-pytest-cov==7.0.0
+pytest-cov==7.1.0
     # via -r requirements/test.txt
 pytest-django==4.12.0
     # via -r requirements/test.txt
