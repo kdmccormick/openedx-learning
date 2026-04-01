@@ -21,7 +21,7 @@ from typing import ClassVar
 
 from django.db import models
 
-from openedx_django_lib.fields import case_sensitive_char_field, code_field, key_field
+from openedx_django_lib.fields import case_sensitive_char_field, code_field, ref_field
 from openedx_django_lib.managers import WithRelationsManager
 
 from ..media.models import Media
@@ -248,7 +248,7 @@ class ComponentVersionMedia(models.Model):
     # alternative name for this would be "path", since it's most often used as
     # an internal file path. However, we might also want to put special
     # identifiers that don't map as cleanly to file paths at some point.
-    key = key_field(db_column="_key")
+    key = ref_field(db_column="_key")
 
     class Meta:
         constraints = [

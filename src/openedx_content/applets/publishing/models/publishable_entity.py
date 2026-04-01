@@ -16,7 +16,7 @@ from django.utils.translation import gettext as _
 from openedx_django_lib.fields import (
     case_insensitive_char_field,
     immutable_uuid_field,
-    key_field,
+    ref_field,
     manual_date_time_field,
 )
 from openedx_django_lib.managers import WithRelationsManager
@@ -120,7 +120,7 @@ class PublishableEntity(models.Model):
     # "key" is a reserved word for MySQL, so we're temporarily using the column
     # name of "_key" to avoid breaking downstream tooling. Consider renaming
     # this later.
-    key = key_field(db_column="_key")
+    key = ref_field(db_column="_key")
 
     created = manual_date_time_field()
     created_by = models.ForeignKey(

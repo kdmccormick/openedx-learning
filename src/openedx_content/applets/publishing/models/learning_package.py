@@ -7,7 +7,7 @@ from openedx_django_lib.fields import (
     MultiCollationTextField,
     case_insensitive_char_field,
     immutable_uuid_field,
-    key_field,
+    ref_field,
     manual_date_time_field,
 )
 
@@ -32,7 +32,7 @@ class LearningPackage(models.Model):
     # question as to whether this field needs to exist at all, or whether the
     # top level library key it's currently used for should be entirely in the
     # LibraryContent model.
-    key = key_field(db_column="_key")
+    key = ref_field(db_column="_key")
 
     title = case_insensitive_char_field(max_length=500, blank=False)
 
