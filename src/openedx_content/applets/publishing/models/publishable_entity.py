@@ -120,9 +120,8 @@ class PublishableEntity(models.Model):
     # entity_ref is an opaque reference string assigned by the creator of this
     # entity (e.g. derived from component_type + component_code for Components).
     # Consumers must treat it as an atomic string — do not parse or reconstruct
-    # it. The underlying DB column is still named "_key" (renamed in a later
-    # migration).
-    entity_ref = ref_field(db_column="_key")
+    # it.
+    entity_ref = ref_field()
 
     created = manual_date_time_field()
     created_by = models.ForeignKey(
