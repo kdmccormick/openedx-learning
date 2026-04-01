@@ -214,7 +214,7 @@ def toml_publishable_entity_version(version: PublishableEntityVersion) -> tomlki
     return version_table
 
 
-def toml_collection(collection: Collection, entity_keys: list[str]) -> str:
+def toml_collection(collection: Collection, entity_refs: list[str]) -> str:
     """
     Create a TOML representation of a collection.
 
@@ -232,7 +232,7 @@ def toml_collection(collection: Collection, entity_keys: list[str]) -> str:
     doc = tomlkit.document()
 
     entities_array = tomlkit.array()
-    entities_array.extend(entity_keys)
+    entities_array.extend(entity_refs)
     entities_array.multiline(True)
 
     collection_table = tomlkit.table()

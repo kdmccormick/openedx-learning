@@ -342,8 +342,8 @@ class ComponentGetAndExistsTestCase(ComponentTestCase):
         with self.assertRaises(ObjectDoesNotExist):
             components_api.get_component(-1)
 
-    def test_publishing_entity_key_convention(self):
-        """Our mapping convention is {namespace}:{component_type}:{component_code}"""
+    def test_publishing_entity_ref_convention(self):
+        """entity_ref convention: {namespace}:{component_type}:{component_code}"""
         assert self.problem.entity_ref == "xblock.v1:problem:my_component"
 
     def test_stand_alone_flag(self):

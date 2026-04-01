@@ -193,12 +193,12 @@ class RestoreLearningPackageCommandTest(RestoreTestCase):
         assert collection.created_by is not None
         assert collection.created_by.username == "lp_user"
 
-        expected_entity_keys = [
+        expected_entity_refs = [
             "xblock.v1:html:e32d5479-9492-41f6-9222-550a7346bc37",
             "xblock.v1:problem:256739e8-c2df-4ced-bd10-8156f6cfa90b",
         ]
-        entity_keys = [entity.entity_ref for entity in collection.entities.all()]
-        assert set(entity_keys) == set(expected_entity_keys)
+        entity_refs = [entity.entity_ref for entity in collection.entities.all()]
+        assert set(entity_refs) == set(expected_entity_refs)
 
 
 class RestoreLearningPackageTest(RestoreTestCase):
@@ -470,7 +470,7 @@ class ComponentSerializerTest(TestCase):
         s.is_valid()
         return s
 
-    def test_legacy_entity_key_parsed(self):
+    def test_legacy_entity_ref_parsed(self):
         """Ulmo archives have no [entity.component] section; fall back to parsing the entity key."""
         s = self._serialize()
         assert s.is_valid(), s.errors
@@ -505,7 +505,7 @@ class ComponentSerializerTest(TestCase):
         assert s.validated_data["component_type"].name == "html"
         assert s.validated_data["component_code"] == "different_code"
 
-    def test_invalid_entity_key_format(self):
+    def test_invalid_entity_ref_format(self):
         """Entity key without enough colons raises a validation error."""
         s = self._serialize(base={
             "can_stand_alone": True,

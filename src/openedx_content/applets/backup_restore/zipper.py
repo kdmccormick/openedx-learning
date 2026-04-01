@@ -403,11 +403,11 @@ class LearningPackageZipper:
             for collection in collections:
                 collection_hash_slug = self.get_entity_toml_filename(collection.collection_code)
                 collection_toml_file_path = collections_folder / f"{collection_hash_slug}.toml"
-                entity_keys_related = collection.entities.order_by("entity_ref").values_list("entity_ref", flat=True)
+                entity_refs_related = collection.entities.order_by("entity_ref").values_list("entity_ref", flat=True)
                 self.add_file_to_zip(
                     zipf,
                     collection_toml_file_path,
-                    toml_collection(collection, list(entity_keys_related)),
+                    toml_collection(collection, list(entity_refs_related)),
                     timestamp=collection.modified,
                 )
 
