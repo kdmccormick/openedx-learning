@@ -7,8 +7,8 @@ from openedx_django_lib.fields import (
     MultiCollationTextField,
     case_insensitive_char_field,
     immutable_uuid_field,
-    ref_field,
     manual_date_time_field,
+    ref_field,
 )
 
 
@@ -27,9 +27,8 @@ class LearningPackage(models.Model):
 
     uuid = immutable_uuid_field()
 
-    # package_ref is an opaque reference string for the LearningPackage. The
-    # underlying DB column is still named "_key" (renamed in a later migration).
-    package_ref = ref_field(db_column="_key")
+    # package_ref is an opaque reference string for the LearningPackage.
+    package_ref = ref_field()
 
     title = case_insensitive_char_field(max_length=500, blank=False)
 

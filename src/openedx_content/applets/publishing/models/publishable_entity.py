@@ -16,8 +16,8 @@ from django.utils.translation import gettext as _
 from openedx_django_lib.fields import (
     case_insensitive_char_field,
     immutable_uuid_field,
-    ref_field,
     manual_date_time_field,
+    ref_field,
 )
 from openedx_django_lib.managers import WithRelationsManager
 
