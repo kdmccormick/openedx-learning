@@ -32,6 +32,7 @@ def create_unit_and_version(
     learning_package_id: int,
     key: str,
     *,
+    container_code: str,
     title: str,
     components: Iterable[Component | ComponentVersion] | None = None,
     created: datetime,
@@ -48,6 +49,7 @@ def create_unit_and_version(
     unit, uv = containers_api.create_container_and_version(
         learning_package_id,
         key=key,
+        container_code=container_code,
         title=title,
         entities=components,
         created=created,

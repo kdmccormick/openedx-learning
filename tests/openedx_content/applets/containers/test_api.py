@@ -147,6 +147,7 @@ def create_test_container(
     container, _version = containers_api.create_container_and_version(
         learning_package.id,
         key=key,
+        container_code=key,
         title=title or f"Container ({key})",
         entities=entities,
         container_cls=TestContainer,
@@ -217,6 +218,7 @@ def _grandparent(
     grandparent, _version = containers_api.create_container_and_version(
         lp.id,
         key="grandparent",
+        container_code="grandparent",
         title="Generic Container with Two Unpinned TestContainer children",
         entities=[parent_of_two, parent_of_three],
         container_cls=ContainerContainer,
@@ -236,6 +238,7 @@ def _container_of_uninstalled_type(lp: LearningPackage, child_entity1: TestEntit
     container, _ = containers_api.create_container_and_version(
         lp.pk,
         key="abandoned-container",
+        container_code="abandoned-container",
         title="Abandoned Container 1",
         entities=[child_entity1],
         container_cls=TestContainer,
@@ -253,6 +256,7 @@ def _other_lp_parent(lp2: LearningPackage, other_lp_child: TestEntity) -> TestCo
     other_lp_parent, _version = containers_api.create_container_and_version(
         lp2.id,
         key="other_lp_parent",
+        container_code="other_lp_parent",
         title="Generic Container with One Unpinned Child Entity",
         entities=[other_lp_child],
         container_cls=TestContainer,
@@ -303,6 +307,7 @@ def test_create_generic_empty_container(lp: LearningPackage, admin_user) -> None
     container, container_v1 = containers_api.create_container_and_version(
         lp.pk,
         key="new-container-1",
+        container_code="new-container-1",
         title="Test Container 1",
         container_cls=TestContainer,
         created=now,
@@ -340,10 +345,12 @@ def test_create_container_queries(lp: LearningPackage, child_entity1: TestEntity
     }
     # The exact numbers here aren't too important - this is just to alert us if anything significant changes.
     with django_assert_num_queries(31):
-        containers_api.create_container_and_version(lp.pk, key="c1", **base_args)
+        containers_api.create_container_and_version(lp.pk, key="c1", container_code="c1", **base_args)
     # And try with a a container that has children:
     with django_assert_num_queries(32):
-        containers_api.create_container_and_version(lp.pk, key="c2", **base_args, entities=[child_entity1])
+        containers_api.create_container_and_version(
+            lp.pk, key="c2", container_code="c2", **base_args, entities=[child_entity1]
+        )
 
 
 # versioning helpers
@@ -1135,6 +1142,7 @@ def test_publishing_shared_component(lp: LearningPackage):
         entities=[c1, c2, c3],
         title="Unit 1",
         key="unit:1",
+        container_code="unit-1",
         created=now,
         created_by=None,
         container_cls=TestContainer,
@@ -1144,6 +1152,7 @@ def test_publishing_shared_component(lp: LearningPackage):
         entities=[c2, c4, c5],
         title="Unit 2",
         key="unit:2",
+        container_code="unit-2",
         created=now,
         created_by=None,
         container_cls=TestContainer,

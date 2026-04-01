@@ -29,6 +29,7 @@ class SubsectionsTestCase(ComponentTestCase):
         self.unit_1, self.unit_1_v1 = content_api.create_unit_and_version(
             learning_package_id=self.learning_package.id,
             key="unit1",
+            container_code="unit1",
             title="Unit 1",
             components=[self.component_1, self.component_2],
             created=self.now,
@@ -46,6 +47,7 @@ class SubsectionsTestCase(ComponentTestCase):
         subsection, _subsection_v1 = content_api.create_subsection_and_version(
             learning_package_id=self.learning_package.id,
             key=key,
+            container_code=key,
             title=title,
             units=units,
             created=self.now,
@@ -65,6 +67,7 @@ class SubsectionsTestCase(ComponentTestCase):
         subsection, subsection_version = content_api.create_subsection_and_version(
             learning_package_id=self.learning_package.pk,
             key="subsection:key",
+            container_code="subsection-key",
             title="Subsection",
             created=self.now,
             created_by=None,

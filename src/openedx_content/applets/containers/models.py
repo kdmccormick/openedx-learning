@@ -10,8 +10,9 @@ from typing import final
 from django.core.exceptions import ValidationError
 from django.db import models
 
-from openedx_django_lib.fields import case_sensitive_char_field
+from openedx_django_lib.fields import case_sensitive_char_field, code_field
 
+from ..publishing.models.learning_package import LearningPackage
 from ..publishing.models.publishable_entity import (
     PublishableEntity,
     PublishableEntityMixin,
@@ -167,6 +168,12 @@ class Container(PublishableEntityMixin):
     olx_tag_name: str = ""
     _type_instance: ContainerType  # Cache used by get_container_type()
 
+    # This foreign key is technically redundant because we're already locked to
+    # a single LearningPackage through our publishable_entity relation. However,
+    # having this foreign key directly allows us to make indexes that efficiently
+    # query by other Container fields within a given LearningPackage.
+    learning_package = models.ForeignKey(LearningPackage, on_delete=models.CASCADE)
+
     # The type of the container. Cannot be changed once the container is created.
     container_type = models.ForeignKey(
         ContainerType,
@@ -174,6 +181,19 @@ class Container(PublishableEntityMixin):
         on_delete=models.RESTRICT,
         editable=False,
     )
+
+    # container_code is an identifier that is local to the learning_package.
+    # Unlike component_code, it is unique across all container types within
+    # the same LearningPackage.
+    container_code = code_field()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["learning_package", "container_code"],
+                name="oel_container_uniq_lp_cc",
+            ),
+        ]
 
     @classmethod
     def validate_entity(cls, entity: PublishableEntity) -> None:
