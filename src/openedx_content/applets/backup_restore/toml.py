@@ -43,7 +43,9 @@ def toml_learning_package(
     # Learning package main info
     section = tomlkit.table()
     section.add("title", learning_package.title)
-    section.add("key", learning_package.key)
+    # Write package_ref (Verawood+) and key (Ulmo back-compat).
+    section.add("package_ref", learning_package.package_ref)
+    section.add("key", learning_package.package_ref)
     section.add("description", learning_package.description)
     section.add("created", learning_package.created)
     section.add("updated", learning_package.updated)

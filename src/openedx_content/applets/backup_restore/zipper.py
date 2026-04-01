@@ -574,7 +574,7 @@ class LearningPackageUnzipper:
         # Step 3.2: Save everything to the DB
         # All validations passed, we can proceed to save everything
         # Save the learning package first to get its ID
-        archive_lp_key = learning_package_validated["key"]
+        archive_lp_key = learning_package_validated["package_ref"]
         learning_package = self._save(
             learning_package_validated,
             components_validated,
@@ -594,7 +594,7 @@ class LearningPackageUnzipper:
             log_file_error=None,
             lp_restored_data=RestoreLearningPackageData(
                 id=learning_package.id,
-                key=learning_package.key,
+                key=learning_package.package_ref,
                 archive_lp_key=archive_lp_key,  # The original key from the backup archive
                 archive_org_key=org_key,  # The original organization key from the backup archive
                 archive_slug=lp_slug,  # The original slug from the backup archive
@@ -744,15 +744,15 @@ class LearningPackageUnzipper:
         # Important: If not using a specific LP key, generate a temporary one
         # We cannot use the original key because it may generate security issues
         if not self.lp_key:
-            # Generate a tmp key for the staged learning package
+            # Generate a tmp ref for the staged learning package
             if not self.user:
                 raise ValueError("User is required to create lp_key")
-            learning_package["key"] = generate_staged_lp_key(
-                archive_lp_key=learning_package["key"],
+            learning_package["package_ref"] = generate_staged_lp_key(
+                archive_lp_key=learning_package["package_ref"],
                 user=self.user
             )
         else:
-            learning_package["key"] = self.lp_key
+            learning_package["package_ref"] = self.lp_key
 
         learning_package_obj = publishing_api.create_learning_package(**learning_package)
         self.learning_package_id = learning_package_obj.id

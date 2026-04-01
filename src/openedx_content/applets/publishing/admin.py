@@ -26,10 +26,10 @@ class LearningPackageAdmin(ReadOnlyModelAdmin):
     """
     Read-only admin for LearningPackage model
     """
-    fields = ["key", "title", "uuid", "created", "updated"]
-    readonly_fields = ["key", "title", "uuid", "created", "updated"]
-    list_display = ["key", "title", "uuid", "created", "updated"]
-    search_fields = ["key", "title", "uuid"]
+    fields = ["package_ref", "title", "uuid", "created", "updated"]
+    readonly_fields = ["package_ref", "title", "uuid", "created", "updated"]
+    list_display = ["package_ref", "title", "uuid", "created", "updated"]
+    search_fields = ["package_ref", "title", "uuid"]
 
 
 class PublishLogRecordTabularInline(admin.TabularInline):

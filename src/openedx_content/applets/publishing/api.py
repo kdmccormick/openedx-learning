@@ -76,22 +76,22 @@ def get_learning_package(learning_package_id: int, /) -> LearningPackage:
     return LearningPackage.objects.get(id=learning_package_id)
 
 
-def get_learning_package_by_key(key: str) -> LearningPackage:
+def get_learning_package_by_key(package_ref: str) -> LearningPackage:
     """
-    Get LearningPackage by key.
+    Get LearningPackage by package_ref.
 
     Can throw a NotFoundError
     """
-    return LearningPackage.objects.get(key=key)
+    return LearningPackage.objects.get(package_ref=package_ref)
 
 
 def create_learning_package(
-    key: str, title: str, description: str = "", created: datetime | None = None
+    package_ref: str, title: str, description: str = "", created: datetime | None = None
 ) -> LearningPackage:
     """
     Create a new LearningPackage.
 
-    The ``key`` must be unique.
+    The ``package_ref`` must be unique.
 
     Errors that can be raised:
 
@@ -101,7 +101,7 @@ def create_learning_package(
         created = datetime.now(tz=timezone.utc)
 
     package = LearningPackage(
-        key=key,
+        package_ref=package_ref,
         title=title,
         description=description,
         created=created,
@@ -116,7 +116,7 @@ def create_learning_package(
 def update_learning_package(
     learning_package_id: int,
     /,
-    key: str | None = None,
+    package_ref: str | None = None,
     title: str | None = None,
     description: str | None = None,
     updated: datetime | None = None,
@@ -130,11 +130,11 @@ def update_learning_package(
 
     # If no changes were requested, there's nothing to update, so just return
     # the LearningPackage as-is.
-    if all(field is None for field in [key, title, description, updated]):
+    if all(field is None for field in [package_ref, title, description, updated]):
         return lp
 
-    if key is not None:
-        lp.key = key
+    if package_ref is not None:
+        lp.package_ref = package_ref
     if title is not None:
         lp.title = title
     if description is not None:
@@ -150,11 +150,11 @@ def update_learning_package(
     return lp
 
 
-def learning_package_exists(key: str) -> bool:
+def learning_package_exists(package_ref: str) -> bool:
     """
-    Check whether a LearningPackage with a particular key exists.
+    Check whether a LearningPackage with a particular package_ref exists.
     """
-    return LearningPackage.objects.filter(key=key).exists()
+    return LearningPackage.objects.filter(package_ref=package_ref).exists()
 
 
 def create_publishable_entity(

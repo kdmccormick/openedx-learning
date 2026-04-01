@@ -111,7 +111,7 @@ class ContainerAdmin(ReadOnlyModelAdmin):
     def learning_package(self, obj: Container) -> SafeText:
         return model_detail_link(
             obj.publishable_entity.learning_package,
-            obj.publishable_entity.learning_package.key,
+            obj.publishable_entity.learning_package.package_ref,
         )
 
     def get_queryset(self, request):
@@ -317,7 +317,7 @@ class EntityListAdmin(ReadOnlyModelAdmin):
                 "in: {}",
                 model_detail_link(
                     latest.container.publishable_entity.learning_package,
-                    latest.container.publishable_entity.learning_package.key,
+                    latest.container.publishable_entity.learning_package.package_ref,
                 ),
             )
         else:

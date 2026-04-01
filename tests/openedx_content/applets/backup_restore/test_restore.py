@@ -54,7 +54,7 @@ class RestoreLearningPackageCommandTest(RestoreTestCase):
 
     def verify_lp(self, key):
         """Verify the learning package was restored correctly."""
-        lp = publishing_api.LearningPackage.objects.filter(key=key).first()
+        lp = publishing_api.LearningPackage.objects.filter(package_ref=key).first()
         assert lp is not None, "Learning package was not restored."
         assert lp.title == "Library test"
         assert lp.description == ""
@@ -245,7 +245,7 @@ class RestoreLearningPackageTest(RestoreTestCase):
         assert general_info == expected_info, f"General info does not match. Got {general_info}"
         assert metadata_general_info == metadata_expected_info, f"Meta info does not match. Got {metadata_general_info}"
 
-        lp = publishing_api.LearningPackage.objects.filter(key="lib-xx:WGU:LIB_C001").first()
+        lp = publishing_api.LearningPackage.objects.filter(package_ref="lib-xx:WGU:LIB_C001").first()
         assert lp is not None, "Learning package was not restored."
 
     def test_successful_restore_with_staged_key(self):
@@ -259,7 +259,7 @@ class RestoreLearningPackageTest(RestoreTestCase):
         assert archive_key == "lib:WGU:LIB_C001"
         assert restored_key.startswith("lp-restore:lp_user:WGU:LIB_C001:")
 
-        lp = publishing_api.LearningPackage.objects.filter(key=restored_key).first()
+        lp = publishing_api.LearningPackage.objects.filter(package_ref=restored_key).first()
         assert lp is not None, "Learning package with staged key was not restored."
 
     def test_restore_with_missing_learning_package_file(self):
@@ -312,7 +312,7 @@ class RestoreLearningPackageTest(RestoreTestCase):
         assert result["lp_restored_data"] is None
         assert result["log_file_error"] is not None
         log_content = result["log_file_error"].getvalue()
-        expected_error = "Errors encountered during restore:\npackage.toml learning package section: {'key':"
+        expected_error = "Errors encountered during restore:\npackage.toml learning package section: {'non_field_errors':"
         assert expected_error in log_content
 
     def test_error_no_metadata_section(self):

@@ -12,14 +12,29 @@ class LearningPackageSerializer(serializers.Serializer):  # pylint: disable=abst
     """
     Serializer for learning packages.
 
+    Archives created in Verawood or later write ``package_ref``. Archives
+    created in Ulmo write ``key``. Both are accepted; ``package_ref`` takes
+    precedence and is normalised to ``key`` in validated_data.
+
     Note:
-        The `key` field is serialized, but it is generally not trustworthy for restoration.
-        During restore, a new key may be generated or overridden.
+        The ref/key field is serialized but is generally not trustworthy for
+        restoration. During restore, a new ref may be generated or overridden.
     """
+
     title = serializers.CharField(required=True)
-    key = serializers.CharField(required=True)
+    package_ref = serializers.CharField(required=False)
+    key = serializers.CharField(required=False)
     description = serializers.CharField(required=True, allow_blank=True)
     created = serializers.DateTimeField(required=True, default_timezone=timezone.utc)
+
+    def validate(self, attrs):
+        package_ref = attrs.pop("package_ref", None)
+        legacy_key = attrs.pop("key", None)
+        ref = package_ref or legacy_key
+        if not ref:
+            raise serializers.ValidationError("Either 'package_ref' or 'key' is required.")
+        attrs["package_ref"] = ref  # Normalise to 'package_ref' for create_learning_package.
+        return attrs
 
 
 class LearningPackageMetadataSerializer(serializers.Serializer):  # pylint: disable=abstract-method

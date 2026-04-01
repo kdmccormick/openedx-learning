@@ -92,13 +92,13 @@ def _other_user(django_user_model):
 @pytest.fixture(name="lp")
 def _lp() -> LearningPackage:
     """Get a Learning Package."""
-    return publishing_api.create_learning_package(key="containers-test-lp", title="Testing Containers Main LP")
+    return publishing_api.create_learning_package(package_ref="containers-test-lp", title="Testing Containers Main LP")
 
 
 @pytest.fixture(name="lp2")
 def _lp2() -> LearningPackage:
     """Get a Second Learning Package."""
-    return publishing_api.create_learning_package(key="containers-test-lp2", title="Testing Containers (📦 2)")
+    return publishing_api.create_learning_package(package_ref="containers-test-lp2", title="Testing Containers (📦 2)")
 
 
 def create_test_entity(learning_package: LearningPackage, key: str, title: str) -> TestEntity:

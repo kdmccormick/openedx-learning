@@ -454,7 +454,7 @@ def look_up_component_version_media(
     I don't know if we wantto make it a part of the public interface.
     """
     queries = (
-        Q(component_version__component__learning_package__key=learning_package_key)
+        Q(component_version__component__learning_package__package_ref=learning_package_key)
         & Q(component_version__component__publishable_entity__entity_ref=component_key)
         & Q(component_version__publishable_entity_version__version_num=version_num)
         & Q(key=key)
@@ -524,7 +524,7 @@ def _get_component_version_info_headers(component_version: ComponentVersion) -> 
         "X-Open-edX-Component-Version-Uuid": component_version.uuid,
         "X-Open-edX-Component-Version-Num": str(component_version.version_num),
         # Learning Package
-        "X-Open-edX-Learning-Package-Key": learning_package.key,
+        "X-Open-edX-Learning-Package-Key": learning_package.package_ref,
         "X-Open-edX-Learning-Package-Uuid": learning_package.uuid,
     }
 

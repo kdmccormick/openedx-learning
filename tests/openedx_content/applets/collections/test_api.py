@@ -36,11 +36,11 @@ class CollectionTestCase(TestCase):
     @classmethod
     def setUpTestData(cls) -> None:
         cls.learning_package = api.create_learning_package(
-            key="ComponentTestCase-test-key",
+            package_ref="ComponentTestCase-test-key",
             title="Components Test Case Learning Package",
         )
         cls.learning_package_2 = api.create_learning_package(
-            key="ComponentTestCase-test-key-2",
+            package_ref="ComponentTestCase-test-key-2",
             title="Components Test Case another Learning Package",
         )
         cls.now = datetime(2024, 8, 5, tzinfo=timezone.utc)
@@ -736,7 +736,7 @@ class SetCollectionsTestCase(CollectionEntitiesTestCase):
         We cannot set collections with a different learning package than the component.
         """
         learning_package_3 = api.create_learning_package(
-            key="ComponentTestCase-test-key-3",
+            package_ref="ComponentTestCase-test-key-3",
             title="Components Test Case Learning Package-3",
         )
         collection = api.create_collection(

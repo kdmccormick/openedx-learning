@@ -35,7 +35,7 @@ class ComponentTestCase(TestCase):
     @classmethod
     def setUpTestData(cls) -> None:
         cls.learning_package = publishing_api.create_learning_package(
-            key="ComponentTestCase-test-key",
+            package_ref="ComponentTestCase-test-key",
             title="Components Test Case Learning Package",
         )
         cls.now = datetime(2023, 5, 8, tzinfo=timezone.utc)
