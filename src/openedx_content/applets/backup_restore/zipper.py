@@ -238,25 +238,25 @@ class LearningPackageZipper:
             versions_to_write.append(published_version)
         return versions_to_write, draft_version, published_version
 
-    def get_entity_toml_filename(self, entity_key: str) -> str:
+    def get_entity_toml_filename(self, entity_ref: str) -> str:
         """
         Generate a unique TOML filename for a publishable entity.
         Ensures that the filename is unique within the zip file.
 
         Behavior:
-        - If the slugified key has not been used yet, use it as the filename.
+        - If the slugified ref has not been used yet, use it as the filename.
         - If it has been used, append a short hash to ensure uniqueness.
 
         Args:
-            entity_key (str): The key of the publishable entity.
+            entity_ref (str): The entity_ref of the publishable entity.
 
         Returns:
             str: A unique TOML filename for the entity.
         """
-        slugify_name = slugify(entity_key, allow_unicode=True)
+        slugify_name = slugify(entity_ref, allow_unicode=True)
 
         if slugify_name in self.entities_filenames_already_created:
-            filename = slugify_hashed_filename(entity_key)
+            filename = slugify_hashed_filename(entity_ref)
         else:
             filename = slugify_name
 
@@ -418,10 +418,10 @@ class RestoreLearningPackageData:
     Data about the restored learning package.
     """
     id: int  # The ID of the restored learning package
-    key: str  # The key of the restored learning package (may be different if staged)
-    archive_lp_key: str  # The original key from the archive
-    archive_org_key: str  # The original organization key from the archive
-    archive_slug: str  # The original slug from the archive
+    key: str  # The package_ref of the restored learning package (may be different if staged)
+    archive_package_ref: str  # The original package_ref from the archive
+    archive_org_code: str | None  # The org code parsed from archive_package_ref, or None if unparseable
+    archive_package_code: str | None  # The package code parsed from archive_package_ref, or None if unparseable
     title: str
     num_containers: int
     num_sections: int
@@ -454,35 +454,43 @@ class RestoreResult:
     backup_metadata: BackupMetadata | None = None
 
 
-def unpack_lp_key(lp_key: str) -> tuple[str, str]:
+def unpack_lp_key(package_ref: str) -> tuple[str | None, str | None]:
     """
-    Unpack a learning package key into its components.
+    Try to parse org_code and package_code from a package_ref.
+
+    By convention, package_refs take the form ``"{prefix}:{org_code}:{package_code}"``,
+    but this is only a convention — package_ref is opaque and the parse may fail.
+    Returns ``(None, None)`` if the ref does not match the expected format.
     """
-    parts = lp_key.split(":")
+    parts = package_ref.split(":")
     if len(parts) < 3:
-        raise ValueError(f"Invalid learning package key: {lp_key}")
-    _, org_key, lp_slug = parts[:3]
-    return org_key, lp_slug
+        return None, None
+    _, org_code, package_code = parts[:3]
+    return org_code, package_code
 
 
-def generate_staged_lp_key(archive_lp_key: str, user: UserType) -> str:
+def generate_staged_lp_key(archive_package_ref: str, user: UserType) -> str:
     """
-    Generate a staged learning package key based on the given base key.
+    Generate a staged learning package ref based on the archive's package_ref.
 
     Arguments:
-        archive_lp_key (str): The original learning package key from the archive.
+        archive_package_ref (str): The original package_ref from the archive.
         user (UserType | None): The user performing the restore operation.
 
     Example:
         Input:  "lib:WGU:LIB_C001"
         Output: "lp-restore:dave:WGU:LIB_C001:1728575321"
 
-    The timestamp at the end ensures the key is unique.
+    The timestamp at the end ensures the ref is unique. Falls back to using
+    the full archive_package_ref when the conventional format is not recognised.
     """
     username = user.username
-    org_key, lp_slug = unpack_lp_key(archive_lp_key)
+    org_code, package_code = unpack_lp_key(archive_package_ref)
     timestamp = int(time.time() * 1000)  # Current time in milliseconds
-    return f"lp-restore:{username}:{org_key}:{lp_slug}:{timestamp}"
+    if org_code and package_code:
+        return f"lp-restore:{username}:{org_code}:{package_code}:{timestamp}"
+    # Fallback for non-conventional package_refs
+    return f"lp-restore:{username}:{archive_package_ref}:{timestamp}"
 
 
 class LearningPackageUnzipper:
@@ -511,7 +519,7 @@ class LearningPackageUnzipper:
         self.zipf = zipf
         self.user = user
         self.user_id = getattr(self.user, "id", None)
-        self.lp_key = key  # If provided, use this key for the restored learning package
+        self.package_ref = key  # If provided, use this package_ref for the restored learning package
         self.learning_package_id: int | None = None  # Will be set upon restoration
         self.utc_now: datetime = datetime.now(timezone.utc)
         self.component_types_cache: dict[tuple[str, str], ComponentType] = {}
@@ -574,7 +582,7 @@ class LearningPackageUnzipper:
         # Step 3.2: Save everything to the DB
         # All validations passed, we can proceed to save everything
         # Save the learning package first to get its ID
-        archive_lp_key = learning_package_validated["package_ref"]
+        archive_package_ref = learning_package_validated["package_ref"]
         learning_package = self._save(
             learning_package_validated,
             components_validated,
@@ -588,16 +596,16 @@ class LearningPackageUnzipper:
             for container_type in ["section", "subsection", "unit"]
         )
 
-        org_key, lp_slug = unpack_lp_key(archive_lp_key)
+        org_code, package_code = unpack_lp_key(archive_package_ref)
         result = RestoreResult(
             status="success",
             log_file_error=None,
             lp_restored_data=RestoreLearningPackageData(
                 id=learning_package.id,
                 key=learning_package.package_ref,
-                archive_lp_key=archive_lp_key,  # The original key from the backup archive
-                archive_org_key=org_key,  # The original organization key from the backup archive
-                archive_slug=lp_slug,  # The original slug from the backup archive
+                archive_package_ref=archive_package_ref,
+                archive_org_code=org_code,
+                archive_package_code=package_code,
                 title=learning_package.title,
                 num_containers=num_containers,
                 num_sections=len(containers_validated.get("section", [])),
@@ -716,11 +724,11 @@ class LearningPackageUnzipper:
                 continue
             collection_validated = serializer.validated_data
             entities_list = collection_validated["entities"]
-            for entity_key in entities_list:
-                if entity_key not in self.all_publishable_entities_keys:
+            for entity_ref in entities_list:
+                if entity_ref not in self.all_publishable_entities_keys:
                     self.errors.append({
                         "file": file,
-                        "errors": f"Entity key {entity_key} not found for collection {collection_validated.get('key')}"
+                        "errors": f"Entity ref {entity_ref} not found for collection {collection_validated.get('key')}"
                     })
             results["collections"].append(collection_validated)
 
@@ -743,16 +751,16 @@ class LearningPackageUnzipper:
 
         # Important: If not using a specific LP key, generate a temporary one
         # We cannot use the original key because it may generate security issues
-        if not self.lp_key:
+        if not self.package_ref:
             # Generate a tmp ref for the staged learning package
             if not self.user:
-                raise ValueError("User is required to create lp_key")
+                raise ValueError("User is required to generate a staged package_ref")
             learning_package["package_ref"] = generate_staged_lp_key(
-                archive_lp_key=learning_package["package_ref"],
+                archive_package_ref=learning_package["package_ref"],
                 user=self.user
             )
         else:
-            learning_package["package_ref"] = self.lp_key
+            learning_package["package_ref"] = self.package_ref
 
         learning_package_obj = publishing_api.create_learning_package(**learning_package)
         self.learning_package_id = learning_package_obj.id

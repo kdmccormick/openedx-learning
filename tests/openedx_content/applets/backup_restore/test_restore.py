@@ -214,9 +214,9 @@ class RestoreLearningPackageTest(RestoreTestCase):
             "lp_restored_data": {
                 "id": result["lp_restored_data"]["id"],  # Dynamic field
                 "key": "lib-xx:WGU:LIB_C001",
-                "archive_lp_key": "lib:WGU:LIB_C001",
-                "archive_org_key": "WGU",
-                "archive_slug": "LIB_C001",
+                "archive_package_ref": "lib:WGU:LIB_C001",
+                "archive_org_code": "WGU",
+                "archive_package_code": "LIB_C001",
                 "title": "Library test",
                 "num_containers": 3,
                 "num_components": 7,
@@ -255,7 +255,7 @@ class RestoreLearningPackageTest(RestoreTestCase):
         assert result["status"] == "success"
         assert result["lp_restored_data"] is not None
         restored_key = result["lp_restored_data"]["key"]
-        archive_key = result["lp_restored_data"]["archive_lp_key"]
+        archive_key = result["lp_restored_data"]["archive_package_ref"]
         assert archive_key == "lib:WGU:LIB_C001"
         assert restored_key.startswith("lp-restore:lp_user:WGU:LIB_C001:")
 
@@ -568,8 +568,8 @@ class RestoreUtilitiesTest(TestCase):
         """Test generating a staged learning package key."""
 
         user_mock = type("User", (), {"username": "dan"})
-        lp_key = "lib:WGU:LIB_C001"
-        staged_key = generate_staged_lp_key(lp_key, user_mock)
+        package_ref = "lib:WGU:LIB_C001"
+        staged_key = generate_staged_lp_key(package_ref, user_mock)
 
         assert staged_key.startswith("lp-restore:dan:WGU:LIB_C001:")
         parts = staged_key.split(":")
@@ -577,10 +577,8 @@ class RestoreUtilitiesTest(TestCase):
         timestamp_part = parts[-1]
         assert timestamp_part.isdigit()
 
-    def test_error_generate_staged_lp_key_invalid_lp_key(self):
-        """Test that generating a staged key with an invalid lp_key raises ValueError."""
+    def test_generate_staged_lp_key_non_conventional_format(self):
+        """Test that a non-conventional package_ref falls back gracefully."""
         user_mock = type("User", (), {"username": "dan"})
-        invalid_lp_key = "invalid-key-format"
-        with self.assertRaises(ValueError) as context:
-            generate_staged_lp_key(invalid_lp_key, user_mock)
-        assert "Invalid learning package key" in str(context.exception)
+        staged_key = generate_staged_lp_key("no-colons-here", user_mock)
+        assert staged_key.startswith("lp-restore:dan:no-colons-here:")
