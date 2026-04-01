@@ -9,7 +9,9 @@ from ..publishing.api import get_learning_package_by_key
 from .zipper import LearningPackageUnzipper, LearningPackageZipper
 
 
-def create_zip_file(package_ref: str, path: str, user: UserType | None = None, origin_server: str | None = None) -> None:
+def create_zip_file(
+        package_ref: str, path: str, user: UserType | None = None, origin_server: str | None = None
+) -> None:
     """
     Creates a dump zip file for the given learning package key at the given path.
     The zip file contains a TOML representation of the learning package and its contents.

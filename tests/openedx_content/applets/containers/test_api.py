@@ -971,7 +971,8 @@ def test_no_publish_parent(parent_of_two: TestContainer, child_entity1: TestEnti
     Test that publishing an entity does NOT publish changes to its parent containers
     """
     # "child_entity1" is a child of "parent_of_two"
-    assert child_entity1.entity_ref in containers_api.get_container_children_entities_keys(parent_of_two.versioning.draft)
+    children_refs = containers_api.get_container_children_entities_keys(parent_of_two.versioning.draft)
+    assert child_entity1.entity_ref in children_refs
     # Neither are published:
     assert child_entity1.versioning.published is None
     assert parent_of_two.versioning.published is None

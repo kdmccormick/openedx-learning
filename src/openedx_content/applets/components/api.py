@@ -73,7 +73,6 @@ def get_or_create_component_type(namespace: str, name: str) -> ComponentType:
     return component_type
 
 
-
 def create_component(
     learning_package_id: int,
     /,

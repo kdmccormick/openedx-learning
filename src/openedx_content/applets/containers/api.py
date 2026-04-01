@@ -890,5 +890,7 @@ def get_container_children_entities_keys(container_version: ContainerVersion) ->
         A list of entity keys for all entities in the container version, ordered by entity key.
     """
     return list(
-        container_version.entity_list.entitylistrow_set.values_list("entity__entity_ref", flat=True).order_by("order_num")
+        container_version.entity_list.entitylistrow_set
+        .values_list("entity__entity_ref", flat=True)
+        .order_by("order_num")
     )

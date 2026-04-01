@@ -788,7 +788,9 @@ class LearningPackageUnzipper:
             collection = collections_api.add_to_collection(
                 learning_package_id=learning_package.id,
                 collection_code=collection.collection_code,
-                entities_qset=publishing_api.get_publishable_entities(learning_package.id).filter(entity_ref__in=entities)
+                entities_qset=publishing_api.get_publishable_entities(learning_package.id).filter(
+                    entity_ref__in=entities
+                )
             )
 
     def _save_components(self, learning_package, components, component_static_files):

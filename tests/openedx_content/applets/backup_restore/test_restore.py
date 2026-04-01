@@ -312,7 +312,10 @@ class RestoreLearningPackageTest(RestoreTestCase):
         assert result["lp_restored_data"] is None
         assert result["log_file_error"] is not None
         log_content = result["log_file_error"].getvalue()
-        expected_error = "Errors encountered during restore:\npackage.toml learning package section: {'non_field_errors':"
+        expected_error = (
+            "Errors encountered during restore:\n"
+            "package.toml learning package section: {'non_field_errors':"
+        )
         assert expected_error in log_content
 
     def test_error_no_metadata_section(self):
