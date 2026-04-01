@@ -269,7 +269,6 @@ class CollectionEntitiesTestCase(CollectionsTestCase):
         created_time = datetime(2025, 4, 1, tzinfo=timezone.utc)
         cls.draft_unit = api.create_container(
             learning_package_id=cls.learning_package.id,
-            key="unit-1",
             created=created_time,
             created_by=cls.user.id,
             container_code="unit-1",
@@ -435,7 +434,7 @@ class CollectionAddRemoveEntitiesTestCase(CollectionEntitiesTestCase):
         """
         collections = api.get_entity_collections(
             self.learning_package.id,
-            self.published_component.publishable_entity.key,
+            self.published_component.publishable_entity.entity_ref,
         )
         assert list(collections) == [
             self.collection1,
@@ -625,11 +624,11 @@ class DeleteCollectionTestCase(CollectionEntitiesTestCase):
         # ...and the entities have been removed from this collection
         assert list(api.get_entity_collections(
             self.learning_package.id,
-            self.published_component.publishable_entity.key,
+            self.published_component.publishable_entity.entity_ref,
         )) == [self.collection1]
         assert not list(api.get_entity_collections(
             self.learning_package.id,
-            self.draft_component.publishable_entity.key,
+            self.draft_component.publishable_entity.entity_ref,
         ))
 
     def test_restore(self):

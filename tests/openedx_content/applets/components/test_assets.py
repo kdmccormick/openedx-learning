@@ -125,7 +125,7 @@ class AssetTestCase(TestCase):
         Note: The request header values in an HttpResponse will all have been
         serialized to strings.
         """
-        assert headers["X-Open-edX-Component-Key"] == self.component.key
+        assert headers["X-Open-edX-Component-Key"] == self.component.entity_ref
         assert headers["X-Open-edX-Component-Uuid"] == str(self.component.uuid)
         assert headers["X-Open-edX-Component-Version-Uuid"] == str(self.component_version.uuid)
         assert headers["X-Open-edX-Component-Version-Num"] == str(self.component_version.version_num)

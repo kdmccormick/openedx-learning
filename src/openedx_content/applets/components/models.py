@@ -153,8 +153,8 @@ class Component(PublishableEntityMixin):
     component_type = models.ForeignKey(ComponentType, on_delete=models.PROTECT)
 
     # component_code is an identifier that is local to the learning_package and
-    # component_type. The publishable.key is derived from component_type and
-    # component_code.
+    # component_type. The publishable.entity_ref is derived from component_type
+    # and component_code.
     component_code = code_field()
 
     class Meta:

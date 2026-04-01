@@ -30,7 +30,6 @@ def get_subsection(subsection_id: int, /):
 
 def create_subsection_and_version(
     learning_package_id: int,
-    key: str,
     *,
     container_code: str,
     title: str,
@@ -38,6 +37,7 @@ def create_subsection_and_version(
     created: datetime,
     created_by: int | None = None,
     can_stand_alone: bool = True,
+    entity_ref: str | None = None,
 ) -> tuple[Subsection, SubsectionVersion]:
     """
     See documentation of `content_api.create_container_and_version()`
@@ -48,8 +48,8 @@ def create_subsection_and_version(
     """
     subsection, sv = containers_api.create_container_and_version(
         learning_package_id,
-        key=key,
         container_code=container_code,
+        entity_ref=entity_ref,
         title=title,
         entities=units,
         created=created,

@@ -185,7 +185,7 @@ def remove_from_collection(
     return collection
 
 
-def get_entity_collections(learning_package_id: int, entity_key: str) -> QuerySet[Collection]:
+def get_entity_collections(learning_package_id: int, entity_ref: str) -> QuerySet[Collection]:
     """
     Get all collections in the given learning package which contain this entity.
 
@@ -193,7 +193,7 @@ def get_entity_collections(learning_package_id: int, entity_key: str) -> QuerySe
     """
     entity = publishing_api.get_publishable_entity_by_key(
         learning_package_id,
-        key=entity_key,
+        entity_ref=entity_ref,
     )
     return entity.collections.filter(enabled=True).order_by("pk")
 

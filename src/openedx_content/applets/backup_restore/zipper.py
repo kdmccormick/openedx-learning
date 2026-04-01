@@ -202,7 +202,7 @@ class LearningPackageZipper:
                     to_attr="prefetched_media",
                 ),
             )
-            .order_by("key")
+            .order_by("entity_ref")
         )
 
     def get_collections(self) -> QuerySet[Collection]:
@@ -316,7 +316,7 @@ class LearningPackageZipper:
                 )
 
                 if hasattr(entity, 'container'):
-                    entity_filename = self.get_entity_toml_filename(entity.key)
+                    entity_filename = self.get_entity_toml_filename(entity.entity_ref)
                     entity_toml_filename = f"{entity_filename}.toml"
                     entity_toml_path = entities_folder / entity_toml_filename
                     self.add_file_to_zip(zipf, entity_toml_path, entity_toml_content, timestamp=latest_modified)
@@ -403,7 +403,7 @@ class LearningPackageZipper:
             for collection in collections:
                 collection_hash_slug = self.get_entity_toml_filename(collection.collection_code)
                 collection_toml_file_path = collections_folder / f"{collection_hash_slug}.toml"
-                entity_keys_related = collection.entities.order_by("key").values_list("key", flat=True)
+                entity_keys_related = collection.entities.order_by("entity_ref").values_list("entity_ref", flat=True)
                 self.add_file_to_zip(
                     zipf,
                     collection_toml_file_path,
@@ -517,7 +517,7 @@ class LearningPackageUnzipper:
         self.component_types_cache: dict[tuple[str, str], ComponentType] = {}
         self.errors: list[dict[str, Any]] = []
         # Maps for resolving relationships
-        self.components_map_by_key: dict[str, Any] = {}
+        self.components_map_by_ref: dict[str, Any] = {}
         self.units_map_by_key: dict[str, Any] = {}
         self.subsections_map_by_key: dict[str, Any] = {}
         self.sections_map_by_key: dict[str, Any] = {}
@@ -780,25 +780,28 @@ class LearningPackageUnzipper:
             collection = collections_api.add_to_collection(
                 learning_package_id=learning_package.id,
                 collection_code=collection.collection_code,
-                entities_qset=publishing_api.get_publishable_entities(learning_package.id).filter(key__in=entities)
+                entities_qset=publishing_api.get_publishable_entities(learning_package.id).filter(entity_ref__in=entities)
             )
 
     def _save_components(self, learning_package, components, component_static_files):
         """Save components and published component versions."""
         for valid_component in components.get("components", []):
-            entity_key = valid_component.pop("key")
+            entity_ref = valid_component.pop("key")
             component = components_api.create_component(learning_package.id, created_by=self.user_id, **valid_component)
-            self.components_map_by_key[entity_key] = component
+            self.components_map_by_ref[entity_ref] = component
 
         for valid_published in components.get("components_published", []):
-            entity_key = valid_published.pop("entity_key")
+            entity_ref = valid_published.pop("entity_key")
             version_num = valid_published["version_num"]  # Should exist, validated earlier
-            media_to_replace = self._resolve_static_files(version_num, entity_key, component_static_files)
+            component = self.components_map_by_ref[entity_ref]
+            media_to_replace = self._resolve_static_files(
+                version_num, entity_ref, component.component_type, component_static_files
+            )
             self.all_published_entities_versions.add(
-                (entity_key, version_num)
+                (entity_ref, version_num)
             )  # Track published version
             components_api.create_next_component_version(
-                self.components_map_by_key[entity_key].publishable_entity.id,
+                component.publishable_entity.id,
                 media_to_replace=media_to_replace,
                 force_version_num=valid_published.pop("version_num", None),
                 created_by=self.user_id,
@@ -817,23 +820,24 @@ class LearningPackageUnzipper:
         """Internal logic for _save_units, _save_subsections, and _save_sections"""
         type_code = container_cls.type_code  # e.g. "unit"
         for data in containers.get(type_code, []):
-            entity_key = data.get("key")
+            entity_ref = data.pop("key")
             container = containers_api.create_container(
                 learning_package.id,
                 **data,  # should this be allowed to override any of the following fields?
+                entity_ref=entity_ref,
                 created_by=self.user_id,
                 container_cls=container_cls,
             )
-            container_map[entity_key] = container  # e.g. `self.units_map_by_key[entity_key] = unit`
+            container_map[entity_ref] = container  # e.g. `self.units_map_by_key[entity_ref] = unit`
 
         for valid_published in containers.get(f"{type_code}_published", []):
-            entity_key = valid_published.pop("entity_key")
+            entity_ref = valid_published.pop("entity_key")
             children = self._resolve_children(valid_published, children_map)
             self.all_published_entities_versions.add(
-                (entity_key, valid_published.get('version_num'))
+                (entity_ref, valid_published.get('version_num'))
             )  # Track published version
             containers_api.create_next_container_version(
-                container_map[entity_key],
+                container_map[entity_ref],
                 **valid_published,  # should this be allowed to override any of the following fields?
                 force_version_num=valid_published.pop("version_num", None),
                 entities=children,
@@ -847,7 +851,7 @@ class LearningPackageUnzipper:
             containers,
             container_cls=Unit,
             container_map=self.units_map_by_key,
-            children_map=self.components_map_by_key,
+            children_map=self.components_map_by_ref,
         )
 
     def _save_subsections(self, learning_package, containers):
@@ -873,13 +877,16 @@ class LearningPackageUnzipper:
     def _save_draft_versions(self, components, containers, component_static_files):
         """Save draft versions for all entity types."""
         for valid_draft in components.get("components_drafts", []):
-            entity_key = valid_draft.pop("entity_key")
+            entity_ref = valid_draft.pop("entity_key")
             version_num = valid_draft["version_num"]  # Should exist, validated earlier
-            if self._is_version_already_exists(entity_key, version_num):
+            if self._is_version_already_exists(entity_ref, version_num):
                 continue
-            media_to_replace = self._resolve_static_files(version_num, entity_key, component_static_files)
+            component = self.components_map_by_ref[entity_ref]
+            media_to_replace = self._resolve_static_files(
+                version_num, entity_ref, component.component_type, component_static_files
+            )
             components_api.create_next_component_version(
-                self.components_map_by_key[entity_key].publishable_entity.id,
+                component.publishable_entity.id,
                 media_to_replace=media_to_replace,
                 force_version_num=valid_draft.pop("version_num", None),
                 # Drafts can diverge from published, so we allow ignoring previous media
@@ -895,21 +902,21 @@ class LearningPackageUnzipper:
             children_map: dict,
         ):
             for valid_draft in containers.get(f"{container_cls.type_code}_drafts", []):
-                entity_key = valid_draft.pop("entity_key")
+                entity_ref = valid_draft.pop("entity_key")
                 version_num = valid_draft["version_num"]  # Should exist, validated earlier
-                if self._is_version_already_exists(entity_key, version_num):
+                if self._is_version_already_exists(entity_ref, version_num):
                     continue
                 children = self._resolve_children(valid_draft, children_map)
                 del valid_draft["version_num"]
                 containers_api.create_next_container_version(
-                    container_map[entity_key],
+                    container_map[entity_ref],
                     **valid_draft,  # should this be allowed to override any of the following fields?
                     entities=children,
                     force_version_num=version_num,
                     created_by=self.user_id,
                 )
 
-        _process_draft_containers(Unit, self.units_map_by_key, children_map=self.components_map_by_key)
+        _process_draft_containers(Unit, self.units_map_by_key, children_map=self.components_map_by_ref)
         _process_draft_containers(Subsection, self.subsections_map_by_key, children_map=self.units_map_by_key)
         _process_draft_containers(Section, self.sections_map_by_key, children_map=self.subsections_map_by_key)
 
@@ -933,9 +940,9 @@ class LearningPackageUnzipper:
             return None
         return StringIO(content)
 
-    def _is_version_already_exists(self, entity_key: str, version_num: int) -> bool:
+    def _is_version_already_exists(self, entity_ref: str, version_num: int) -> bool:
         """
-        Check if a version already exists for a given entity key and version number.
+        Check if a version already exists for a given entity_ref and version number.
 
         Note:
             Skip creating draft if this version is already published
@@ -944,20 +951,21 @@ class LearningPackageUnzipper:
             Otherwise, we will raise an IntegrityError on PublishableEntityVersion
             due to unique constraints between publishable_entity and version_num.
         """
-        identifier = (entity_key, version_num)
+        identifier = (entity_ref, version_num)
         return identifier in self.all_published_entities_versions
 
     def _resolve_static_files(
             self,
             num_version: int,
-            entity_key: str,
+            entity_ref: str,
+            component_type,
             static_files_map: dict[str, List[str]]
     ) -> dict[str, bytes | int]:
         """Resolve static file paths into their binary media content."""
         resolved_files: dict[str, bytes | int] = {}
 
-        static_file_key = f"{entity_key}:v{num_version}"  # e.g., "xblock.v1:html:my_component_123456:v1"
-        block_type = entity_key.split(":")[1]  # e.g., "html"
+        static_file_key = f"{entity_ref}:v{num_version}"  # e.g., "xblock.v1:html:my_component_123456:v1"
+        block_type = component_type.name  # e.g., "html"
         static_files = static_files_map.get(static_file_key, [])
         for static_file in static_files:
             local_key = static_file.split(f"v{num_version}/")[-1]

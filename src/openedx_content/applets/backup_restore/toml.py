@@ -89,8 +89,10 @@ def _get_toml_publishable_entity_table(
     """
     entity_table = tomlkit.table()
     entity_table.add("can_stand_alone", entity.can_stand_alone)
-    # Add key since the toml filename doesn't show the real key
-    entity_table.add("key", entity.key)
+    # Write entity_ref (Verawood+) and key (Ulmo back-compat) so that older
+    # restore code can still read archives produced after this rename.
+    entity_table.add("entity_ref", entity.entity_ref)
+    entity_table.add("key", entity.entity_ref)
     entity_table.add("created", entity.created)
 
     if not include_versions:

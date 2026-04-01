@@ -40,10 +40,26 @@ class LearningPackageMetadataSerializer(serializers.Serializer):  # pylint: disa
 class EntitySerializer(serializers.Serializer):  # pylint: disable=abstract-method
     """
     Serializer for publishable entities.
+
+    Archives created in Verawood or later write ``entity_ref``. Archives
+    created in Ulmo use ``key``. Both are accepted; ``entity_ref`` takes
+    precedence and is normalised to ``key`` in validated_data for
+    backwards-compatibility with internal restore logic.
     """
+
     can_stand_alone = serializers.BooleanField(required=True)
-    key = serializers.CharField(required=True)
+    entity_ref = serializers.CharField(required=False)
+    key = serializers.CharField(required=False)
     created = serializers.DateTimeField(required=True, default_timezone=timezone.utc)
+
+    def validate(self, attrs):
+        entity_ref = attrs.pop("entity_ref", None)
+        legacy_key = attrs.pop("key", None)
+        ref = entity_ref or legacy_key
+        if not ref:
+            raise serializers.ValidationError("Either 'entity_ref' or 'key' is required.")
+        attrs["key"] = ref  # Normalise to 'key' for internal restore logic.
+        return attrs
 
 
 class EntityVersionSerializer(serializers.Serializer):  # pylint: disable=abstract-method
@@ -92,14 +108,19 @@ class ComponentSerializer(EntitySerializer):  # pylint: disable=abstract-method
                 ) from exc
             component_type_obj = components_api.get_or_create_component_type(namespace, type_name)
         else:
-            # Ulmo (legacy) format: parse the entity key.
+            # Ulmo (legacy) format: parse the entity key to extract
+            # (namespace, type_name, component_code). This parsing is
+            # intentionally only here — entity_ref must not be parsed
+            # anywhere else in the codebase.
             entity_key = attrs["key"]
             try:
-                component_type_obj, component_code = (
-                    components_api.get_or_create_component_type_by_entity_key(entity_key)
-                )
+                namespace, type_name, component_code = entity_key.split(":", 2)
             except ValueError as exc:
-                raise serializers.ValidationError({"key": str(exc)})
+                raise serializers.ValidationError(
+                    {"key": f"Invalid entity key format: {entity_key!r}. "
+                            "Expected '{namespace}:{type_name}:{component_code}'."}
+                ) from exc
+            component_type_obj = components_api.get_or_create_component_type(namespace, type_name)
         attrs["component_type"] = component_type_obj
         attrs["component_code"] = component_code
         return attrs

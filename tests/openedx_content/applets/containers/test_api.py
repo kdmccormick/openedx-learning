@@ -146,7 +146,6 @@ def create_test_container(
     """Create a TestContainer with a draft version"""
     container, _version = containers_api.create_container_and_version(
         learning_package.id,
-        key=key,
         container_code=key,
         title=title or f"Container ({key})",
         entities=entities,
@@ -217,7 +216,6 @@ def _grandparent(
     """An ContainerContainer with two unpinned children"""
     grandparent, _version = containers_api.create_container_and_version(
         lp.id,
-        key="grandparent",
         container_code="grandparent",
         title="Generic Container with Two Unpinned TestContainer children",
         entities=[parent_of_two, parent_of_three],
@@ -237,7 +235,6 @@ def _container_of_uninstalled_type(lp: LearningPackage, child_entity1: TestEntit
     # First create a TestContainer, then we'll modify it to simulate it being from an uninstalled plugin
     container, _ = containers_api.create_container_and_version(
         lp.pk,
-        key="abandoned-container",
         container_code="abandoned-container",
         title="Abandoned Container 1",
         entities=[child_entity1],
@@ -255,7 +252,6 @@ def _other_lp_parent(lp2: LearningPackage, other_lp_child: TestEntity) -> TestCo
     """An TestContainer with one child"""
     other_lp_parent, _version = containers_api.create_container_and_version(
         lp2.id,
-        key="other_lp_parent",
         container_code="other_lp_parent",
         title="Generic Container with One Unpinned Child Entity",
         entities=[other_lp_child],
@@ -306,7 +302,6 @@ def test_create_generic_empty_container(lp: LearningPackage, admin_user) -> None
     """
     container, container_v1 = containers_api.create_container_and_version(
         lp.pk,
-        key="new-container-1",
         container_code="new-container-1",
         title="Test Container 1",
         container_cls=TestContainer,
@@ -322,7 +317,7 @@ def test_create_generic_empty_container(lp: LearningPackage, admin_user) -> None
     assert isinstance(container_v1, TestContainerVersion)
     assert container.versioning.draft == container_v1
     assert container.versioning.published is None
-    assert container.key == "new-container-1"
+    assert container.entity_ref == "new-container-1"
     assert container.versioning.draft.title == "Test Container 1"
     assert container.created == now
     assert container.created_by == admin_user
@@ -345,11 +340,11 @@ def test_create_container_queries(lp: LearningPackage, child_entity1: TestEntity
     }
     # The exact numbers here aren't too important - this is just to alert us if anything significant changes.
     with django_assert_num_queries(31):
-        containers_api.create_container_and_version(lp.pk, key="c1", container_code="c1", **base_args)
+        containers_api.create_container_and_version(lp.pk, container_code="c1", **base_args)
     # And try with a a container that has children:
     with django_assert_num_queries(32):
         containers_api.create_container_and_version(
-            lp.pk, key="c2", container_code="c2", **base_args, entities=[child_entity1]
+            lp.pk, container_code="c2", **base_args, entities=[child_entity1]
         )
 
 
@@ -751,7 +746,7 @@ def test_get_container_by_key(lp: LearningPackage, parent_of_two: TestContainer)
     """
     Test getting a specific container by key
     """
-    result = containers_api.get_container_by_key(lp.pk, parent_of_two.key)
+    result = containers_api.get_container_by_key(lp.pk, parent_of_two.entity_ref)
     assert result == parent_of_two.container
     # The API always returns "Container", not specific subclasses like TestContainer:
     assert result.__class__ is Container
@@ -976,7 +971,7 @@ def test_no_publish_parent(parent_of_two: TestContainer, child_entity1: TestEnti
     Test that publishing an entity does NOT publish changes to its parent containers
     """
     # "child_entity1" is a child of "parent_of_two"
-    assert child_entity1.key in containers_api.get_container_children_entities_keys(parent_of_two.versioning.draft)
+    assert child_entity1.entity_ref in containers_api.get_container_children_entities_keys(parent_of_two.versioning.draft)
     # Neither are published:
     assert child_entity1.versioning.published is None
     assert parent_of_two.versioning.published is None
@@ -1141,7 +1136,6 @@ def test_publishing_shared_component(lp: LearningPackage):
         lp.pk,
         entities=[c1, c2, c3],
         title="Unit 1",
-        key="unit:1",
         container_code="unit-1",
         created=now,
         created_by=None,
@@ -1151,7 +1145,6 @@ def test_publishing_shared_component(lp: LearningPackage):
         lp.pk,
         entities=[c2, c4, c5],
         title="Unit 2",
-        key="unit:2",
         container_code="unit-2",
         created=now,
         created_by=None,
@@ -1217,7 +1210,7 @@ def test_shallow_publish_log(
 ) -> None:
     """Simple test of publishing a container plus children and reviewing the publish log"""
     publish_log = publish_entity(parent_of_two)
-    assert list(publish_log.records.order_by("entity__pk").values_list("entity__key", flat=True)) == [
+    assert list(publish_log.records.order_by("entity__pk").values_list("entity__entity_ref", flat=True)) == [
         # The container and its two children should be the only things published:
         "child_entity1",
         "child_entity2",
@@ -1236,7 +1229,7 @@ def test_uninstalled_publish(
     with django_assert_num_queries(49):
         publish_log = publish_entity(container_of_uninstalled_type)
         # Nothing else should have been affected by the publish:
-        assert list(publish_log.records.order_by("entity__pk").values_list("entity__key", flat=True)) == [
+        assert list(publish_log.records.order_by("entity__pk").values_list("entity__entity_ref", flat=True)) == [
             "child_entity1",
             "abandoned-container",
         ]
@@ -1274,7 +1267,7 @@ def test_deep_publish_log(
     with django_assert_num_queries(49):
         publish_log = publish_entity(container_of_uninstalled_type)
         # Nothing else should have been affected by the publish:
-        assert list(publish_log.records.order_by("entity__pk").values_list("entity__key", flat=True)) == [
+        assert list(publish_log.records.order_by("entity__pk").values_list("entity__entity_ref", flat=True)) == [
             "child_entity1",
             "abandoned-container",
         ]
@@ -1282,7 +1275,7 @@ def test_deep_publish_log(
     # Publish great_grandparent. Should publish the whole tree.
     with django_assert_num_queries(126):
         publish_log = publish_entity(great_grandparent)
-        assert list(publish_log.records.order_by("entity__pk").values_list("entity__key", flat=True)) == [
+        assert list(publish_log.records.order_by("entity__pk").values_list("entity__entity_ref", flat=True)) == [
             "child_entity2",
             "parent_of_two",
             "parent_of_three",

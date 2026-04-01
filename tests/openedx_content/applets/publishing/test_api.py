@@ -1075,7 +1075,6 @@ class TestContainerSideEffects(TestCase):
         )
         container = containers_api.create_container(
             self.learning_package.id,
-            "my_container",
             created=self.now,
             created_by=None,
             container_code="my_container",
@@ -1156,7 +1155,6 @@ class TestContainerSideEffects(TestCase):
             )
             container = containers_api.create_container(
                 self.learning_package.id,
-                "my_container",
                 created=self.now,
                 created_by=None,
                 container_code="my_container",
@@ -1233,7 +1231,6 @@ class TestContainerSideEffects(TestCase):
         )
         unit_1 = containers_api.create_container(
             self.learning_package.id,
-            "unit_1",
             created=self.now,
             created_by=None,
             container_code="unit_1",
@@ -1241,7 +1238,6 @@ class TestContainerSideEffects(TestCase):
         )
         unit_2 = containers_api.create_container(
             self.learning_package.id,
-            "unit_2",
             created=self.now,
             created_by=None,
             container_code="unit_2",
@@ -1297,7 +1293,6 @@ class TestContainerSideEffects(TestCase):
         )
         unit = containers_api.create_container(
             self.learning_package.id,
-            "unit_1",
             created=self.now,
             created_by=None,
             container_code="unit_1",
@@ -1313,7 +1308,6 @@ class TestContainerSideEffects(TestCase):
         )
         subsection = containers_api.create_container(
             self.learning_package.id,
-            "subsection_1",
             created=self.now,
             created_by=None,
             container_code="subsection_1",
@@ -1398,7 +1392,6 @@ class TestContainerSideEffects(TestCase):
         )
         unit = containers_api.create_container(
             self.learning_package.id,
-            "unit_1",
             created=self.now,
             created_by=None,
             container_code="unit_1",
@@ -1414,7 +1407,6 @@ class TestContainerSideEffects(TestCase):
         )
         subsection = containers_api.create_container(
             self.learning_package.id,
-            "subsection_1",
             created=self.now,
             created_by=None,
             container_code="subsection_1",
@@ -1447,7 +1439,6 @@ class TestContainerSideEffects(TestCase):
         )
         container = containers_api.create_container(
             self.learning_package.id,
-            "my_container",
             created=self.now,
             created_by=None,
             container_code="my_container",

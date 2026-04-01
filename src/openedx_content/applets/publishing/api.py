@@ -160,7 +160,7 @@ def learning_package_exists(key: str) -> bool:
 def create_publishable_entity(
     learning_package_id: int,
     /,
-    key: str,
+    entity_ref: str,
     created: datetime,
     # User ID who created this
     created_by: int | None,
@@ -175,7 +175,7 @@ def create_publishable_entity(
     """
     return PublishableEntity.objects.create(
         learning_package_id=learning_package_id,
-        key=key,
+        entity_ref=entity_ref,
         created=created,
         created_by_id=created_by,
         can_stand_alone=can_stand_alone,
@@ -286,10 +286,10 @@ def get_publishable_entity(publishable_entity_id: int, /) -> PublishableEntity:
     return PublishableEntity.objects.get(id=publishable_entity_id)
 
 
-def get_publishable_entity_by_key(learning_package_id, /, key) -> PublishableEntity:
+def get_publishable_entity_by_key(learning_package_id, /, entity_ref) -> PublishableEntity:
     return PublishableEntity.objects.get(
         learning_package_id=learning_package_id,
-        key=key,
+        entity_ref=entity_ref,
     )
 
 

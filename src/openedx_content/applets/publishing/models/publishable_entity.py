@@ -117,10 +117,12 @@ class PublishableEntity(models.Model):
         related_name="publishable_entities",
     )
 
-    # "key" is a reserved word for MySQL, so we're temporarily using the column
-    # name of "_key" to avoid breaking downstream tooling. Consider renaming
-    # this later.
-    key = ref_field(db_column="_key")
+    # entity_ref is an opaque reference string assigned by the creator of this
+    # entity (e.g. derived from component_type + component_code for Components).
+    # Consumers must treat it as an atomic string — do not parse or reconstruct
+    # it. The underlying DB column is still named "_key" (renamed in a later
+    # migration).
+    entity_ref = ref_field(db_column="_key")
 
     created = manual_date_time_field()
     created_by = models.ForeignKey(
@@ -136,21 +138,19 @@ class PublishableEntity(models.Model):
 
     class Meta:
         constraints = [
-            # Keys are unique within a given LearningPackage.
+            # entity_refs are unique within a given LearningPackage.
             models.UniqueConstraint(
                 fields=[
                     "learning_package",
-                    "key",
+                    "entity_ref",
                 ],
                 name="oel_pub_ent_uniq_lp_key",
             )
         ]
         indexes = [
-            # Global Key Index:
-            #   * Search by key across all PublishableEntities on the site. This
-            #     would be a support-oriented tool from Django Admin.
+            # Global entity_ref index for support-oriented admin searches.
             models.Index(
-                fields=["key"],
+                fields=["entity_ref"],
                 name="oel_pub_ent_idx_key",
             ),
             # LearningPackage (reverse) Created Index:
@@ -167,7 +167,7 @@ class PublishableEntity(models.Model):
         verbose_name_plural = "Publishable Entities"
 
     def __str__(self):
-        return f"{self.key}"
+        return f"{self.entity_ref}"
 
 
 class PublishableEntityVersion(models.Model):
@@ -234,7 +234,7 @@ class PublishableEntityVersion(models.Model):
     )
 
     def __str__(self):
-        return f"{self.entity.key} @ v{self.version_num} - {self.title}"
+        return f"{self.entity.entity_ref} @ v{self.version_num} - {self.title}"
 
     class Meta:
         constraints = [
@@ -347,8 +347,8 @@ class PublishableEntityMixin(models.Model):
         return self.publishable_entity.can_stand_alone
 
     @property
-    def key(self) -> str:
-        return self.publishable_entity.key
+    def entity_ref(self) -> str:
+        return self.publishable_entity.entity_ref
 
     @property
     def created(self) -> datetime:

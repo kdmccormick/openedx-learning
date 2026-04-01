@@ -66,26 +66,26 @@ class RestoreLearningPackageCommandTest(RestoreTestCase):
         expected_container_keys = ["unit1-b7eafb", "subsection1-48afa3", "section1-8ca126"]
 
         for container in container_qs:
-            assert container.key in expected_container_keys
+            assert container.entity_ref in expected_container_keys
             draft_version = publishing_api.get_draft_version(container.publishable_entity.id)
             published_version = publishing_api.get_published_version(container.publishable_entity.id)
             assert container.created_by is not None
             assert container.created_by.username == "lp_user"
-            if container.key == "unit1-b7eafb":
+            if container.entity_ref == "unit1-b7eafb":
                 assert containers_api.get_container_type_code_of(container) == "unit"
                 assert draft_version is not None
                 assert draft_version.version_num == 2
                 assert draft_version.created_by is not None
                 assert draft_version.created_by.username == "lp_user"
                 assert published_version is None
-            elif container.key == "subsection1-48afa3":
+            elif container.entity_ref == "subsection1-48afa3":
                 assert containers_api.get_container_type_code_of(container) == "subsection"
                 assert draft_version is not None
                 assert draft_version.version_num == 2
                 assert draft_version.created_by is not None
                 assert draft_version.created_by.username == "lp_user"
                 assert published_version is None
-            elif container.key == "section1-8ca126":
+            elif container.entity_ref == "section1-8ca126":
                 assert containers_api.get_container_type_code_of(container) == "section"
                 assert draft_version is not None
                 assert draft_version.version_num == 2
@@ -93,7 +93,7 @@ class RestoreLearningPackageCommandTest(RestoreTestCase):
                 assert draft_version.created_by.username == "lp_user"
                 assert published_version is None
             else:
-                assert False, f"Unexpected container key: {container.key}"
+                assert False, f"Unexpected container key: {container.entity_ref}"
 
     def verify_components(self, lp):
         # pylint: disable=too-many-statements
@@ -109,12 +109,12 @@ class RestoreLearningPackageCommandTest(RestoreTestCase):
             "xblock.v1:html:c22b9f97-f1e9-4e8f-87f0-d5a3c26083e2"
         ]
         for component in component_qs:
-            assert component.key in expected_component_keys
+            assert component.entity_ref in expected_component_keys
             draft_version = publishing_api.get_draft_version(component.publishable_entity.id)
             published_version = publishing_api.get_published_version(component.publishable_entity.id)
             assert component.created_by is not None
             assert component.created_by.username == "lp_user"
-            if component.key == "xblock.v1:drag-and-drop-v2:4d1b2fac-8b30-42fb-872d-6b10ab580b27":
+            if component.entity_ref == "xblock.v1:drag-and-drop-v2:4d1b2fac-8b30-42fb-872d-6b10ab580b27":
                 assert component.component_type.name == "drag-and-drop-v2"
                 assert component.component_type.namespace == "xblock.v1"
                 assert draft_version is not None
@@ -129,7 +129,7 @@ class RestoreLearningPackageCommandTest(RestoreTestCase):
                 assert "<drag-and-drop-v2" in media.text
                 assert not media.has_file
                 assert str(media.media_type) == "application/vnd.openedx.xblock.v1.drag-and-drop-v2+xml"
-            elif component.key == "xblock.v1:html:e32d5479-9492-41f6-9222-550a7346bc37":
+            elif component.entity_ref == "xblock.v1:html:e32d5479-9492-41f6-9222-550a7346bc37":
                 assert component.component_type.name == "html"
                 assert component.component_type.namespace == "xblock.v1"
                 assert draft_version is not None
@@ -140,7 +140,7 @@ class RestoreLearningPackageCommandTest(RestoreTestCase):
                 assert published_version.version_num == 4
                 assert published_version.created_by is not None
                 assert published_version.created_by.username == "lp_user"
-            elif component.key == "xblock.v1:openassessment:1ee38208-a585-4455-a27e-4930aa541f53":
+            elif component.entity_ref == "xblock.v1:openassessment:1ee38208-a585-4455-a27e-4930aa541f53":
                 assert component.component_type.name == "openassessment"
                 assert component.component_type.namespace == "xblock.v1"
                 assert draft_version is not None
@@ -148,7 +148,7 @@ class RestoreLearningPackageCommandTest(RestoreTestCase):
                 assert draft_version.created_by is not None
                 assert draft_version.created_by.username == "lp_user"
                 assert published_version is None
-            elif component.key == "xblock.v1:problem:256739e8-c2df-4ced-bd10-8156f6cfa90b":
+            elif component.entity_ref == "xblock.v1:problem:256739e8-c2df-4ced-bd10-8156f6cfa90b":
                 assert component.component_type.name == "problem"
                 assert component.component_type.namespace == "xblock.v1"
                 assert draft_version is not None
@@ -156,13 +156,13 @@ class RestoreLearningPackageCommandTest(RestoreTestCase):
                 assert draft_version.created_by is not None
                 assert draft_version.created_by.username == "lp_user"
                 assert published_version is None
-            elif component.key == "xblock.v1:survey:6681da3f-b056-4c6e-a8f9-040967907471":
+            elif component.entity_ref == "xblock.v1:survey:6681da3f-b056-4c6e-a8f9-040967907471":
                 assert component.component_type.name == "survey"
                 assert component.component_type.namespace == "xblock.v1"
                 assert draft_version is not None
                 assert draft_version.version_num == 1
                 assert published_version is None
-            elif component.key == "xblock.v1:video:22601ebd-9da8-430b-9778-cfe059a98568":
+            elif component.entity_ref == "xblock.v1:video:22601ebd-9da8-430b-9778-cfe059a98568":
                 assert component.component_type.name == "video"
                 assert component.component_type.namespace == "xblock.v1"
                 assert draft_version is not None
@@ -170,7 +170,7 @@ class RestoreLearningPackageCommandTest(RestoreTestCase):
                 assert draft_version.created_by is not None
                 assert draft_version.created_by.username == "lp_user"
                 assert published_version is None
-            elif component.key == "xblock.v1:html:c22b9f97-f1e9-4e8f-87f0-d5a3c26083e2":
+            elif component.entity_ref == "xblock.v1:html:c22b9f97-f1e9-4e8f-87f0-d5a3c26083e2":
                 assert draft_version is not None
                 assert draft_version.version_num == 2
                 assert draft_version.created_by is not None
@@ -180,7 +180,7 @@ class RestoreLearningPackageCommandTest(RestoreTestCase):
                 assert published_version.created_by is not None
                 assert published_version.created_by.username == "lp_user"
             else:
-                assert False, f"Unexpected component key: {component.key}"
+                assert False, f"Unexpected component key: {component.entity_ref}"
 
     def verify_collections(self, lp):
         """Verify the collections were restored correctly."""
@@ -197,7 +197,7 @@ class RestoreLearningPackageCommandTest(RestoreTestCase):
             "xblock.v1:html:e32d5479-9492-41f6-9222-550a7346bc37",
             "xblock.v1:problem:256739e8-c2df-4ced-bd10-8156f6cfa90b",
         ]
-        entity_keys = [entity.key for entity in collection.entities.all()]
+        entity_keys = [entity.entity_ref for entity in collection.entities.all()]
         assert set(entity_keys) == set(expected_entity_keys)
 
 
@@ -400,6 +400,50 @@ class CollectionSerializerTest(TestCase):
 
     def test_neither_field_is_an_error(self):
         """Missing both 'key' and 'collection_code' must fail validation."""
+        s = self._serialize({})
+        assert not s.is_valid()
+        assert "non_field_errors" in s.errors
+
+
+class EntitySerializerTest(TestCase):
+    """
+    Unit tests for EntitySerializer's back-compat handling of Ulmo archives
+    (uses 'key') vs. Verawood+ archives (uses 'entity_ref').
+    """
+
+    BASE_DATA = {
+        "can_stand_alone": True,
+        "created": "2025-09-04T22:51:59Z",
+    }
+
+    def _serialize(self, extra):
+        from openedx_content.applets.backup_restore.serializers import EntitySerializer
+        data = {**self.BASE_DATA, **extra}
+        s = EntitySerializer(data=data)
+        s.is_valid()
+        return s
+
+    def test_ulmo_key_field(self):
+        """Ulmo archives write 'key'; restore must accept it."""
+        s = self._serialize({"key": "xblock.v1:html:abc"})
+        assert s.is_valid(), s.errors
+        assert s.validated_data["key"] == "xblock.v1:html:abc"
+        assert "entity_ref" not in s.validated_data
+
+    def test_verawood_entity_ref_field(self):
+        """Verawood+ archives write 'entity_ref'."""
+        s = self._serialize({"entity_ref": "xblock.v1:html:abc"})
+        assert s.is_valid(), s.errors
+        assert s.validated_data["key"] == "xblock.v1:html:abc"
+
+    def test_entity_ref_wins_over_key(self):
+        """When both are present, entity_ref takes precedence."""
+        s = self._serialize({"entity_ref": "new-ref", "key": "old-key"})
+        assert s.is_valid(), s.errors
+        assert s.validated_data["key"] == "new-ref"
+
+    def test_neither_field_is_an_error(self):
+        """Missing both 'entity_ref' and 'key' must fail validation."""
         s = self._serialize({})
         assert not s.is_valid()
         assert "non_field_errors" in s.errors
