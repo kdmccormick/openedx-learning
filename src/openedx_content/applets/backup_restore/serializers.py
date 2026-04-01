@@ -82,7 +82,7 @@ class EntityVersionSerializer(serializers.Serializer):  # pylint: disable=abstra
     Serializer for publishable entity versions.
     """
     title = serializers.CharField(required=True)
-    entity_key = serializers.CharField(required=True)
+    entity_ref = serializers.CharField(required=True)
     created = serializers.DateTimeField(required=True, default_timezone=timezone.utc)
     version_num = serializers.IntegerField(required=True)
 
@@ -127,12 +127,12 @@ class ComponentSerializer(EntitySerializer):  # pylint: disable=abstract-method
             # (namespace, type_name, component_code). This parsing is
             # intentionally only here — entity_ref must not be parsed
             # anywhere else in the codebase.
-            entity_key = attrs["key"]
+            entity_ref = attrs["key"]
             try:
-                namespace, type_name, component_code = entity_key.split(":", 2)
+                namespace, type_name, component_code = entity_ref.split(":", 2)
             except ValueError as exc:
                 raise serializers.ValidationError(
-                    {"key": f"Invalid entity key format: {entity_key!r}. "
+                    {"key": f"Invalid entity ref format: {entity_ref!r}. "
                             "Expected '{namespace}:{type_name}:{component_code}'."}
                 ) from exc
             component_type_obj = components_api.get_or_create_component_type(namespace, type_name)

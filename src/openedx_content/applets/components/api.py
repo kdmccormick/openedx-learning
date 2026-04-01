@@ -439,7 +439,7 @@ def get_collection_components(
 
 
 def look_up_component_version_media(
-    learning_package_key: str,
+    learning_package_ref: str,
     component_key: str,
     version_num: int,
     key: Path,
@@ -454,7 +454,7 @@ def look_up_component_version_media(
     I don't know if we wantto make it a part of the public interface.
     """
     queries = (
-        Q(component_version__component__learning_package__package_ref=learning_package_key)
+        Q(component_version__component__learning_package__package_ref=learning_package_ref)
         & Q(component_version__component__publishable_entity__entity_ref=component_key)
         & Q(component_version__publishable_entity_version__version_num=version_num)
         & Q(key=key)

@@ -454,7 +454,7 @@ class RestoreResult:
     backup_metadata: BackupMetadata | None = None
 
 
-def unpack_lp_key(package_ref: str) -> tuple[str | None, str | None]:
+def unpack_package_ref(package_ref: str) -> tuple[str | None, str | None]:
     """
     Try to parse org_code and package_code from a package_ref.
 
@@ -469,7 +469,7 @@ def unpack_lp_key(package_ref: str) -> tuple[str | None, str | None]:
     return org_code, package_code
 
 
-def generate_staged_lp_key(archive_package_ref: str, user: UserType) -> str:
+def generate_staged_package_ref(archive_package_ref: str, user: UserType) -> str:
     """
     Generate a staged learning package ref based on the archive's package_ref.
 
@@ -485,7 +485,7 @@ def generate_staged_lp_key(archive_package_ref: str, user: UserType) -> str:
     the full archive_package_ref when the conventional format is not recognised.
     """
     username = user.username
-    org_code, package_code = unpack_lp_key(archive_package_ref)
+    org_code, package_code = unpack_package_ref(archive_package_ref)
     timestamp = int(time.time() * 1000)  # Current time in milliseconds
     if org_code and package_code:
         return f"lp-restore:{username}:{org_code}:{package_code}:{timestamp}"
@@ -596,7 +596,7 @@ class LearningPackageUnzipper:
             for container_type in ["section", "subsection", "unit"]
         )
 
-        org_code, package_code = unpack_lp_key(archive_package_ref)
+        org_code, package_code = unpack_package_ref(archive_package_ref)
         result = RestoreResult(
             status="success",
             log_file_error=None,
@@ -755,7 +755,7 @@ class LearningPackageUnzipper:
             # Generate a tmp ref for the staged learning package
             if not self.user:
                 raise ValueError("User is required to generate a staged package_ref")
-            learning_package["package_ref"] = generate_staged_lp_key(
+            learning_package["package_ref"] = generate_staged_package_ref(
                 archive_package_ref=learning_package["package_ref"],
                 user=self.user
             )
@@ -799,7 +799,7 @@ class LearningPackageUnzipper:
             self.components_map_by_ref[entity_ref] = component
 
         for valid_published in components.get("components_published", []):
-            entity_ref = valid_published.pop("entity_key")
+            entity_ref = valid_published.pop("entity_ref")
             version_num = valid_published["version_num"]  # Should exist, validated earlier
             component = self.components_map_by_ref[entity_ref]
             media_to_replace = self._resolve_static_files(
@@ -839,7 +839,7 @@ class LearningPackageUnzipper:
             container_map[entity_ref] = container  # e.g. `self.units_map_by_key[entity_ref] = unit`
 
         for valid_published in containers.get(f"{type_code}_published", []):
-            entity_ref = valid_published.pop("entity_key")
+            entity_ref = valid_published.pop("entity_ref")
             children = self._resolve_children(valid_published, children_map)
             self.all_published_entities_versions.add(
                 (entity_ref, valid_published.get('version_num'))
@@ -885,7 +885,7 @@ class LearningPackageUnzipper:
     def _save_draft_versions(self, components, containers, component_static_files):
         """Save draft versions for all entity types."""
         for valid_draft in components.get("components_drafts", []):
-            entity_ref = valid_draft.pop("entity_key")
+            entity_ref = valid_draft.pop("entity_ref")
             version_num = valid_draft["version_num"]  # Should exist, validated earlier
             if self._is_version_already_exists(entity_ref, version_num):
                 continue
@@ -910,7 +910,7 @@ class LearningPackageUnzipper:
             children_map: dict,
         ):
             for valid_draft in containers.get(f"{container_cls.type_code}_drafts", []):
-                entity_ref = valid_draft.pop("entity_key")
+                entity_ref = valid_draft.pop("entity_ref")
                 version_num = valid_draft["version_num"]  # Should exist, validated earlier
                 if self._is_version_already_exists(entity_ref, version_num):
                     continue
@@ -1018,7 +1018,7 @@ class LearningPackageUnzipper:
                 continue
             serializer = serializer_cls(
                 data={
-                    "entity_key": entity_data["key"],
+                    "entity_ref": entity_data["key"],
                     "created": self.utc_now,
                     "created_by": None,
                     **version

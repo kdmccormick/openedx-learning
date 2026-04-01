@@ -26,9 +26,9 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "learning_package_key",
+            "learning_package_ref",
             type=str,
-            help="LearningPackage.key value for where the Component is located."
+            help="LearningPackage.package_ref value for where the Component is located."
         )
         parser.add_argument(
             "component_key",
@@ -53,11 +53,11 @@ class Command(BaseCommand):
         """
         Add files to a Component as ComponentVersion -> Content associations.
         """
-        learning_package_key = options["learning_package_key"]
+        learning_package_ref = options["learning_package_ref"]
         component_key = options["component_key"]
         file_mappings = options["file_mappings"]
 
-        learning_package = get_learning_package_by_key(learning_package_key)
+        learning_package = get_learning_package_by_key(learning_package_ref)
         # Parse something like: "xblock.v1:problem:area_of_circle_1"
         namespace, type_name, component_code = component_key.split(":", 2)
         component = get_component_by_key(

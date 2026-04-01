@@ -13,7 +13,7 @@ from openedx_content.applets.backup_restore.serializers import (
     ComponentSerializer,
     ContainerSerializer,
 )
-from openedx_content.applets.backup_restore.zipper import LearningPackageUnzipper, generate_staged_lp_key
+from openedx_content.applets.backup_restore.zipper import LearningPackageUnzipper, generate_staged_package_ref
 from openedx_content.applets.collections import api as collections_api
 from openedx_content.applets.components import api as components_api
 from openedx_content.applets.containers import api as containers_api
@@ -30,7 +30,7 @@ class RestoreTestCase(TestCase):
         super().setUp()
         self.fixtures_folder = os.path.join(os.path.dirname(__file__), "fixtures/library_backup")
         self.zip_file = folder_to_inmemory_zip(self.fixtures_folder)
-        self.lp_key = "lib:WGU:LIB_C001"
+        self.package_ref = "lib:WGU:LIB_C001"
         self.user = User.objects.create_user(username='lp_user', password='12345')
 
 
@@ -548,7 +548,7 @@ class ContainerSerializerTest(TestCase):
         assert s.validated_data["container_type"] == "unit"
         assert s.validated_data["container_code"] == "my_unit"
 
-    def test_ulmo_fallback_to_entity_key(self):
+    def test_ulmo_fallback_to_entity_ref(self):
         """Ulmo archives have no container_code; fall back to entity key."""
         s = self._serialize({"unit": {}})
         assert s.is_valid(), s.errors
@@ -564,12 +564,12 @@ class ContainerSerializerTest(TestCase):
 class RestoreUtilitiesTest(TestCase):
     """Tests for utility functions used in the restore process."""
 
-    def test_generate_staged_lp_key(self):
+    def test_generate_staged_package_ref(self):
         """Test generating a staged learning package key."""
 
         user_mock = type("User", (), {"username": "dan"})
         package_ref = "lib:WGU:LIB_C001"
-        staged_key = generate_staged_lp_key(package_ref, user_mock)
+        staged_key = generate_staged_package_ref(package_ref, user_mock)
 
         assert staged_key.startswith("lp-restore:dan:WGU:LIB_C001:")
         parts = staged_key.split(":")
@@ -580,5 +580,5 @@ class RestoreUtilitiesTest(TestCase):
     def test_generate_staged_lp_key_non_conventional_format(self):
         """Test that a non-conventional package_ref falls back gracefully."""
         user_mock = type("User", (), {"username": "dan"})
-        staged_key = generate_staged_lp_key("no-colons-here", user_mock)
+        staged_key = generate_staged_package_ref("no-colons-here", user_mock)
         assert staged_key.startswith("lp-restore:dan:no-colons-here:")
