@@ -243,8 +243,8 @@ class ComponentVersionMedia(models.Model):
     media = models.ForeignKey(Media, on_delete=models.RESTRICT)
 
     # path is a local file-path-like identifier for the media within a
-    # ComponentVersion. The DB column is still named "_key" (renamed later).
-    path = ref_field(db_column="_key")
+    # ComponentVersion.
+    path = ref_field()
 
     class Meta:
         constraints = [
